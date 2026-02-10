@@ -12,11 +12,22 @@ function App() {
   const [code, setCode] = useState(`function sum() {
   return 1 + 1;
   }`);
-  const [review, setReview]=useState(``)
+  const [review, setReview]=useState(``);
+  const [loading, setLoading]=useState(false);
+  const [error, setError]=useState("");
 
   async function reviewCode(){
+      setLoading(true)
+      setError("")
+      try{
       const response= await axios.post('http://localhost:3000/ai/get-review',{ code });
       setReview(response.data);
+      }
+      catch{
+        setError("❌ Failed to fetch review. Try again.");
+      }
+     
+      setLoading(false);
   }
   return (
     <main> 
@@ -40,11 +51,16 @@ function App() {
           />
         </div>
 
-        <div onClick={reviewCode} className="review">Review</div>
+        <button onClick={reviewCode} disabled={loading} className="review">
+          {loading ? "Reviewing..." : "Review Code 🚀"}
+        </button>
       </div>
-
+      
       <div className="right">
-         <Markdown>{review}</Markdown>
+        <Markdown>{review}</Markdown>
+        
+        
+        {error && <p className="error" style={{color: "red"}}>{error}</p>}
       </div>
     </main>
   );
